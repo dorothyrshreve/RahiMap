@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title> Rahi Map! </title>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
+   
+   <!-- Make sure you put this AFTER Leaflet's CSS -->
+	
+	<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		#mymap {
+			width: 600px;
+			height: 400px;
+		}
+	</style>
+	
+	<style>#mymap { width: 600px; height: 400px; }
+.info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,1); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; }</style>
+</head>
+<body>
+
+
+<h1>Rahi Land Types!</h1>
+
+<div id='mymap'></div>
+
+<script type="text/javascript" src="RahiGeoJSONLandTypes.geojson"></script>
+
+<script type="text/javascript">
+
+	var mymap = L.map('mymap').setView([-30, -65], 3);
+	
+	L.tileLayer('https://api.mapbox.com/styles/v1/shrev017/cj8wjflo1g6bd2rphwkrcdjrn/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2hyZXYwMTciLCJhIjoiY2o4YWF3Z2E4MGU1dzM0cGYzdmE4dGx1aiJ9.d2X7dKCAJIwB00CVtWqGsA', {
+		maxZoom: 18,
+		id: 'RahiMap',
+	}).addTo(mymap);
+	
+	// control that shows state info on hover
+	var info = L.control();
+
+	info.onAdd = function (mymap) {
+		this._div = L.DomUtil.create('LandType', 'info');
+		this.update();
+		return this._div;
+	};
+	
+	info.update = function (props) {
+		this._div.innerHTML = '<b>Land Type: </b>' +  (props ?
+			'<b>' + props.LandType + '</b><br />'
+			: 'Hover over a Land Type');
+	};
+
+	info.addTo(mymap);
+	
+	function style(feature) {
+		return {
+			weight: 0.5,
+			opacity: 1,
+			color: 'black',
+			fillOpacity: 0,
+		};
+	}
+	
+	function highlightFeature(e) {
+		var layer = e.target;
+		
+		layer.setStyle({
+			weight: 2,
+			color: 'white',
+			fillOpacity: 0,
+		});
+		
+		if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+			layer.bringToFront();
+		}
+		
+		info.update(layer.feature.properties);
+	}
+	
+	function resetHighlight(e) {
+		var layer = e.target;
+		layer.setStyle({
+			weight: 1,
+			color: 'black',
+		});
+		
+		info.update(layer.feature.properties);
+	}
+	
+	function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight
+    });
+}
+	
+	L.geoJSON(RahiLandTypes, {
+		style: style,
+		onEachFeature: onEachFeature
+	}).addTo(mymap);
+	
+	
+</script>
+
+<p>What's up bitches?</p>
+
+</body>
+</html>
